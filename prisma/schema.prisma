@@ -1,0 +1,323 @@
+// This is your Prisma schema file
+// Learn more at: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USER & AUTH
+// ============================================================================
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum AccountStatus {
+  PENDING      // Awaiting admin approval
+  APPROVED     // Can access the system
+  REJECTED     // Signup rejected
+  SUSPENDED    // Account suspended by admin
+}
+
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  password      String
+  name          String?
+  role          UserRole      @default(USER)
+  accountStatus AccountStatus @default(PENDING)
+  
+  // Profile
+  avatar        String?
+  bio           String?
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  companies    Company[]
+  researchJobs ResearchJob[]
+  reports      Report[]
+}
+
+// ============================================================================
+// PROMPT CONFIGURATION (Admin-editable AI prompts)
+// ============================================================================
+
+model PromptConfig {
+  id          String   @id @default(cuid())
+  
+  name        String   @unique    // e.g., "website_analysis", "business_opportunities"
+  displayName String              // e.g., "Website Analysis Prompt"
+  description String?             // Description of what this prompt does
+  
+  prompt      String   @db.Text   // The actual prompt text
+  
+  category    String   @default("research")  // research, report, etc.
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ============================================================================
+// COMPANY DATA (Input from CSV)
+// ============================================================================
+
+model Company {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Core fields from Google Maps CSV
+  companyName  String
+  address      String?
+  phone        String?
+  website      String?
+  category     String?
+  rating       Float?
+  reviewsCount Int?
+  placeId      String?
+  
+  // Status
+  status       CompanyStatus @default(PENDING)
+  
+  // Timestamps
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  researchJobs   ResearchJob[]
+  researchResult ResearchResult?
+  reports        Report[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([companyName])
+}
+
+enum CompanyStatus {
+  PENDING
+  QUEUED
+  RESEARCHING
+  COMPLETED
+  FAILED
+}
+
+// ============================================================================
+// RESEARCH QUEUE & JOBS
+// ============================================================================
+
+model ResearchJob {
+  id         String    @id @default(cuid())
+  companyId  String
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Job configuration
+  priority   Int       @default(0)
+  
+  // Status tracking
+  status     JobStatus @default(PENDING)
+  progress   Int       @default(0) // 0-100
+  
+  // Agent progress
+  websiteAnalysis     AgentStatus @default(PENDING)
+  socialMediaHunt     AgentStatus @default(PENDING)
+  ownerInvestigation  AgentStatus @default(PENDING)
+  competitorMapping   AgentStatus @default(PENDING)
+  newsAggregation     AgentStatus @default(PENDING)
+  businessAnalysis    AgentStatus @default(PENDING)
+  
+  // Timing
+  startedAt  DateTime?
+  completedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Error tracking
+  errorMessage String?
+  retryCount   Int     @default(0)
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([status])
+}
+
+enum JobStatus {
+  PENDING
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum AgentStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  SKIPPED
+}
+
+// ============================================================================
+// RESEARCH RESULTS
+// ============================================================================
+
+model ResearchResult {
+  id         String  @id @default(cuid())
+  companyId  String  @unique
+  company    Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  // Quality metrics
+  completenessScore    Float   @default(0) // 0-100
+  confidenceScore      Float   @default(0) // 0-100
+  qualityScore         Float   @default(0) // 0-100
+  
+  // Agent outputs (JSON)
+  websiteData          Json?   // Website Analyst output
+  socialMediaData      Json?   // Social Media Hunter output
+  ownerData            Json?   // Owner Investigator output
+  competitorData       Json?   // Competitor Mapper output
+  newsData             Json?   // News Aggregator output
+  businessAnalysisData Json?   // Business Process Analyzer output
+  
+  // Merged intelligence
+  mergedIntelligence   Json?   // Fused data from all agents
+  
+  // Marketing opportunities
+  opportunities        Json?   // Identified opportunities
+  
+  // Gaps & issues
+  dataGaps             String[] @default([])
+  lowConfidenceFields  String[] @default([])
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+}
+
+// ============================================================================
+// REPORTS
+// ============================================================================
+
+model Report {
+  id         String     @id @default(cuid())
+  companyId  String
+  company    Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Report content
+  title      String
+  markdownContent String  @db.Text
+  
+  // Scores summary
+  digitalMaturityScore   Float?
+  socialPresenceScore    Float?
+  reputationScore        Float?
+  opportunityScore       Float?
+  
+  // Generated files
+  pdfUrl     String?
+  
+  // Versioning
+  version    Int        @default(1)
+  
+  // Timestamps
+  generatedAt DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([companyId])
+  @@index([userId])
+}
+
+// ============================================================================
+// EVOLUTION LOG (Learning System)
+// ============================================================================
+
+model EvolutionLog {
+  id         String   @id @default(cuid())
+  
+  eventType  EventType
+  
+  // Event details
+  source     String?          // Data source name
+  industry   String?          // Company category/industry
+  
+  // Metrics
+  durationMs      Int?        // Time taken
+  dataQualityScore Float?     // Quality of data received
+  
+  // Error info (for failures)
+  errorCode    String?
+  errorMessage String?
+  retryCount   Int?
+  fallbackUsed String?
+  
+  // Research completion data
+  companyId        String?
+  completenessScore Float?
+  sourcesUsed      String[]  @default([])
+  sourcesFailed    String[]  @default([])
+  gaps             String[]  @default([])
+  
+  // Adaptation data
+  changeType   String?
+  oldConfig    Json?
+  newConfig    Json?
+  reason       String?
+  
+  timestamp    DateTime @default(now())
+
+  @@index([eventType])
+  @@index([source])
+  @@index([timestamp])
+}
+
+enum EventType {
+  SOURCE_SUCCESS
+  SOURCE_FAILURE
+  RESEARCH_COMPLETE
+  ADAPTATION_APPLIED
+}
+
+// ============================================================================
+// SOURCE CONFIGURATION (For adaptive learning)
+// ============================================================================
+
+model SourceConfig {
+  id          String @id @default(cuid())
+  
+  sourceName  String @unique
+  priority    Int    @default(5) // 1-10, lower = higher priority
+  
+  // Performance metrics (updated by learning system)
+  successRate      Float  @default(100)
+  avgQualityScore  Float  @default(100)
+  avgDurationMs    Int    @default(0)
+  
+  // Rate limiting
+  requestsPerMinute Int   @default(10)
+  delayBetweenMs    Int   @default(6000)
+  dailyLimit        Int   @default(500)
+  currentDailyUsage Int   @default(0)
+  
+  // Status
+  isEnabled   Boolean @default(true)
+  lastUsed    DateTime?
+  lastReset   DateTime @default(now())
+  
+  updatedAt   DateTime @updatedAt
+}
