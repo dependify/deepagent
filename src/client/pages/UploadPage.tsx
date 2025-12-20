@@ -108,11 +108,7 @@ export default function UploadPage() {
                             Download our CSV template to ensure correct formatting
                         </p>
                     </div>
-                    <a
-                        href="/api/upload/template"
-                        className="btn-primary text-sm"
-                        download
-                    >
+                    <a href="/api/upload/template" className="btn-primary text-sm" download>
                         Download Template
                     </a>
                 </div>
@@ -124,10 +120,11 @@ export default function UploadPage() {
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
-                className={`card border-2 border-dashed transition-colors ${isDragging
+                className={`card border-2 border-dashed transition-colors ${
+                    isDragging
                         ? 'border-primary-500 bg-primary-50'
                         : 'border-slate-300 hover:border-primary-400'
-                    }`}
+                }`}
             >
                 <div className="text-center py-8">
                     <div className="text-4xl mb-4">📄</div>
@@ -188,19 +185,27 @@ export default function UploadPage() {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                             <p className="text-success-700">Total Rows</p>
-                            <p className="font-semibold text-success-900">{result.stats.totalRows}</p>
+                            <p className="font-semibold text-success-900">
+                                {result.stats.totalRows}
+                            </p>
                         </div>
                         <div>
                             <p className="text-success-700">Valid Rows</p>
-                            <p className="font-semibold text-success-900">{result.stats.validRows}</p>
+                            <p className="font-semibold text-success-900">
+                                {result.stats.validRows}
+                            </p>
                         </div>
                         <div>
                             <p className="text-success-700">Duplicates Removed</p>
-                            <p className="font-semibold text-success-900">{result.stats.duplicatesRemoved}</p>
+                            <p className="font-semibold text-success-900">
+                                {result.stats.duplicatesRemoved}
+                            </p>
                         </div>
                         <div>
                             <p className="text-success-700">Companies Created</p>
-                            <p className="font-semibold text-success-900">{result.stats.companiesCreated}</p>
+                            <p className="font-semibold text-success-900">
+                                {result.stats.companiesCreated}
+                            </p>
                         </div>
                     </div>
                     {result.stats.alreadyExists > 0 && (

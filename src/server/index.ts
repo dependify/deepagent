@@ -7,6 +7,8 @@ import { fileURLToPath } from 'url';
 import { config } from './config/index.js';
 import { logger } from './config/logger.js';
 import { prisma } from './config/database.js';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -28,16 +30,20 @@ const app = express();
 // ============================================================================
 
 // Security (relaxed for serving static files)
-app.use(helmet({
-    contentSecurityPolicy: false,
-    crossOriginEmbedderPolicy: false,
-}));
+app.use(
+    helmet({
+        contentSecurityPolicy: false,
+        crossOriginEmbedderPolicy: false,
+    })
+);
 
 // CORS
-app.use(cors({
-    origin: config.cors.origin,
-    credentials: true,
-}));
+app.use(
+    cors({
+        origin: config.cors.origin,
+        credentials: true,
+    })
+);
 
 // Rate limiting (only for API routes)
 const limiter = rateLimit({
@@ -53,11 +59,14 @@ app.use(express.urlencoded({ extended: true }));
 
 // Request logging (only for API routes to reduce noise)
 app.use('/api', (req, res, next) => {
-    logger.info({
-        method: req.method,
-        path: req.path,
-        ip: req.ip,
-    }, 'Incoming request');
+    logger.info(
+        {
+            method: req.method,
+            path: req.path,
+            ip: req.ip,
+        },
+        'Incoming request'
+    );
     next();
 });
 
@@ -65,12 +74,54 @@ app.use('/api', (req, res, next) => {
 // API ROUTES
 // ============================================================================
 
-// Health check
+// Swagger Definition
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Deep Company Intelligence Platform API',
+            version: '1.0.0',
+            description: 'API documentation for Deep Company Intelligence Platform',
+        },
+        servers: [
+            {
+                url: `http://localhost:${config.port}/api`,
+            },
+        ],
+    },
+    apis: ['./src/server/routes/*.ts', './src/server/index.ts'],
+};
+
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Health check endpoint
+ *     tags: [System]
+ *     responses:
+ *       200:
+ *         description: Server is running
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *                 timestamp:
+ *                   type: string
+ *                 version:
+ *                   type: string
+ */
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
     });
 });
 
@@ -120,8 +171,16 @@ app.use('/api', (req, res) => {
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
     logger.error({ err, path: req.path }, 'Unhandled error');
 
-    res.status(500).json({
-        error: config.isDev ? err.message : 'Internal server error',
+    const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
+
+    res.status(statusCode).json({
+        success: false,
+        error: {
+            code: 'INTERNAL_SERVER_ERROR',
+            message: config.isDev ? err.message : 'Internal server error',
+            ...(config.isDev && { stack: err.stack }),
+        },
+        timestamp: new Date().toISOString(),
     });
 });
 
@@ -140,7 +199,9 @@ async function startServer() {
         app.listen(PORT, () => {
             logger.info(`Server running on http://localhost:${PORT}`);
             logger.info(`Environment: ${config.nodeEnv}`);
-            logger.info(`Mode: ${config.isDev ? 'Development (use Vite for frontend)' : 'Production (serving built frontend)'}`);
+            logger.info(
+                `Mode: ${config.isDev ? 'Development (use Vite for frontend)' : 'Production (serving built frontend)'}`
+            );
         });
     } catch (error) {
         logger.error({ error }, 'Failed to start server');

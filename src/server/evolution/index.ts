@@ -1,6 +1,6 @@
 /**
  * Evolution & Learning System
- * 
+ *
  * Tracks research patterns, source quality, and adapts strategies over time.
  * Implements the "adaptive learning" layer of the antifragile architecture.
  */
@@ -138,13 +138,15 @@ async function updateSourceMetrics(
                 ? Math.min(100, existing.successRate + (100 - existing.successRate) * 0.1)
                 : Math.max(0, existing.successRate - 10);
 
-            const newAvgDuration = success && durationMs > 0
-                ? Math.round((existing.avgDurationMs + durationMs) / 2)
-                : existing.avgDurationMs;
+            const newAvgDuration =
+                success && durationMs > 0
+                    ? Math.round((existing.avgDurationMs + durationMs) / 2)
+                    : existing.avgDurationMs;
 
-            const newAvgQuality = success && qualityScore > 0
-                ? (existing.avgQualityScore + qualityScore) / 2
-                : existing.avgQualityScore;
+            const newAvgQuality =
+                success && qualityScore > 0
+                    ? (existing.avgQualityScore + qualityScore) / 2
+                    : existing.avgQualityScore;
 
             await prisma.sourceConfig.update({
                 where: { sourceName },
@@ -186,31 +188,35 @@ export async function getSourcePerformance(): Promise<SourcePerformance[]> {
         orderBy: { successRate: 'desc' },
     });
 
-    return sources.map((s: { sourceName: string; successRate: number; avgDurationMs: number; avgQualityScore: number; lastUsed: Date | null; isEnabled: boolean }) => ({
-        sourceName: s.sourceName,
-        successRate: s.successRate,
-        avgDurationMs: s.avgDurationMs,
-        avgQualityScore: s.avgQualityScore,
-        lastUsed: s.lastUsed,
-        isEnabled: s.isEnabled,
-    }));
+    return sources.map(
+        (s: {
+            sourceName: string;
+            successRate: number;
+            avgDurationMs: number;
+            avgQualityScore: number;
+            lastUsed: Date | null;
+            isEnabled: boolean;
+        }) => ({
+            sourceName: s.sourceName,
+            successRate: s.successRate,
+            avgDurationMs: s.avgDurationMs,
+            avgQualityScore: s.avgQualityScore,
+            lastUsed: s.lastUsed,
+            isEnabled: s.isEnabled,
+        })
+    );
 }
 
 /**
  * Get best sources for a specific use case
  */
-export async function getBestSources(
-    minSuccessRate: number = 50
-): Promise<string[]> {
+export async function getBestSources(minSuccessRate: number = 50): Promise<string[]> {
     const sources = await prisma.sourceConfig.findMany({
         where: {
             isEnabled: true,
             successRate: { gte: minSuccessRate },
         },
-        orderBy: [
-            { successRate: 'desc' },
-            { avgQualityScore: 'desc' },
-        ],
+        orderBy: [{ successRate: 'desc' }, { avgQualityScore: 'desc' }],
         take: 5,
     });
 
@@ -266,17 +272,21 @@ export async function analyzeLearningInsights(): Promise<LearningInsights> {
             const firstHalf = recentLogs.slice(0, 10);
             const secondHalf = recentLogs.slice(10, 20);
 
-            const firstAvg = firstHalf.reduce(
-                (s: number, r: { completenessScore: number | null }) => s + (r.completenessScore || 0),
-                0
-            ) / firstHalf.length;
-
-            const secondAvg = secondHalf.length > 0
-                ? secondHalf.reduce(
-                    (s: number, r: { completenessScore: number | null }) => s + (r.completenessScore || 0),
+            const firstAvg =
+                firstHalf.reduce(
+                    (s: number, r: { completenessScore: number | null }) =>
+                        s + (r.completenessScore || 0),
                     0
-                ) / secondHalf.length
-                : firstAvg;
+                ) / firstHalf.length;
+
+            const secondAvg =
+                secondHalf.length > 0
+                    ? secondHalf.reduce(
+                          (s: number, r: { completenessScore: number | null }) =>
+                              s + (r.completenessScore || 0),
+                          0
+                      ) / secondHalf.length
+                    : firstAvg;
 
             if (firstAvg > secondAvg + 5) {
                 insights.qualityTrend = 'improving';
@@ -293,13 +303,16 @@ export async function analyzeLearningInsights(): Promise<LearningInsights> {
         }
 
         if (insights.qualityTrend === 'declining') {
-            insights.recommendations.push('Research quality is declining. Review agent configurations.');
+            insights.recommendations.push(
+                'Research quality is declining. Review agent configurations.'
+            );
         }
 
         if (insights.avgProcessingTime > 300) {
-            insights.recommendations.push('Processing time is high. Consider optimizing parallel execution.');
+            insights.recommendations.push(
+                'Processing time is high. Consider optimizing parallel execution.'
+            );
         }
-
     } catch (error) {
         logger.error({ error }, 'Failed to analyze learning insights');
     }

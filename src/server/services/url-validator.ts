@@ -1,6 +1,6 @@
 /**
  * URL Validation Service
- * 
+ *
  * Validates URLs with live checks, redirect handling, and status detection.
  */
 
@@ -103,14 +103,16 @@ export async function validateUrl(url: string): Promise<UrlValidationResult> {
             if (result.hasSSL) {
                 result.sslValid = true; // fetch would fail on invalid SSL by default
             }
-
         } catch (fetchError: any) {
             clearTimeout(timeout);
 
             if (fetchError.name === 'AbortError') {
                 result.status = 'timeout';
                 result.errors?.push('Request timed out after 10 seconds');
-            } else if (fetchError.message?.includes('SSL') || fetchError.message?.includes('certificate')) {
+            } else if (
+                fetchError.message?.includes('SSL') ||
+                fetchError.message?.includes('certificate')
+            ) {
                 result.status = 'down';
                 result.sslValid = false;
                 result.errors?.push('SSL certificate error');
@@ -139,18 +141,20 @@ export async function validateUrl(url: string): Promise<UrlValidationResult> {
                 // HTTP fallback also failed
             }
         }
-
     } catch (error) {
         result.errors?.push((error as Error).message);
     }
 
     result.responseTime = Date.now() - startTime;
 
-    logger.debug({
-        url: result.originalUrl,
-        status: result.status,
-        responseTime: result.responseTime
-    }, 'URL validation complete');
+    logger.debug(
+        {
+            url: result.originalUrl,
+            status: result.status,
+            responseTime: result.responseTime,
+        },
+        'URL validation complete'
+    );
 
     return result;
 }
@@ -159,9 +163,7 @@ export async function validateUrl(url: string): Promise<UrlValidationResult> {
  * Validate multiple URLs in parallel
  */
 export async function validateUrls(urls: string[]): Promise<UrlValidationResult[]> {
-    const results = await Promise.all(
-        urls.map(url => validateUrl(url))
-    );
+    const results = await Promise.all(urls.map((url) => validateUrl(url)));
     return results;
 }
 

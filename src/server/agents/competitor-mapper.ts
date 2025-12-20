@@ -1,6 +1,6 @@
 /**
  * Competitor Mapper Agent
- * 
+ *
  * Discovers and analyzes competitors in the same market/location.
  * Uses Exa.ai for discovery and Tavily for verification.
  */
@@ -147,9 +147,8 @@ function extractCompetitorInfo(result: any, excludeCompany: string): CompetitorP
     if (!name || name.length < 3) return null;
 
     // Determine if has website
-    const hasWebsite = !url.includes('yelp.com') &&
-        !url.includes('facebook.com') &&
-        !url.includes('linkedin.com');
+    const hasWebsite =
+        !url.includes('yelp.com') && !url.includes('facebook.com') && !url.includes('linkedin.com');
 
     // Estimate digital presence
     let digitalScore = 30;
@@ -162,7 +161,8 @@ function extractCompetitorInfo(result: any, excludeCompany: string): CompetitorP
         website: hasWebsite ? url : undefined,
         description: content.substring(0, 200),
         hasWebsite,
-        hasSocialMedia: content.toLowerCase().includes('facebook') ||
+        hasSocialMedia:
+            content.toLowerCase().includes('facebook') ||
             content.toLowerCase().includes('instagram'),
         digitalPresenceScore: digitalScore,
         estimatedSize: 'unknown',
@@ -235,15 +235,21 @@ export async function mapCompetitors(
         }
 
         // Count stronger/weaker (assuming average digital score of 50)
-        result.strongerCompetitors = result.competitors.filter(c => c.digitalPresenceScore > 60).length;
-        result.weakerCompetitors = result.competitors.filter(c => c.digitalPresenceScore < 40).length;
+        result.strongerCompetitors = result.competitors.filter(
+            (c) => c.digitalPresenceScore > 60
+        ).length;
+        result.weakerCompetitors = result.competitors.filter(
+            (c) => c.digitalPresenceScore < 40
+        ).length;
 
-        logger.info({
-            companyName,
-            competitorsFound: result.totalCompetitorsFound,
-            saturation: result.marketSaturation
-        }, 'Competitor mapping complete');
-
+        logger.info(
+            {
+                companyName,
+                competitorsFound: result.totalCompetitorsFound,
+                saturation: result.marketSaturation,
+            },
+            'Competitor mapping complete'
+        );
     } catch (error) {
         logger.error({ companyName, error }, 'Competitor mapping failed');
         result.errors?.push((error as Error).message);

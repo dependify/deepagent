@@ -49,9 +49,7 @@ export default function DashboardPage() {
                 <h1 className="text-2xl font-bold text-slate-900">
                     Welcome back, {user?.name || 'there'}!
                 </h1>
-                <p className="text-slate-600 mt-1">
-                    Here's an overview of your company research
-                </p>
+                <p className="text-slate-600 mt-1">Here's an overview of your company research</p>
             </div>
 
             {/* Stats Grid */}
@@ -95,7 +93,8 @@ export default function DashboardPage() {
                 <div className="card bg-gradient-to-br from-primary-50 to-primary-100 border-primary-200">
                     <h2 className="text-lg font-semibold text-primary-900 mb-2">Getting Started</h2>
                     <p className="text-primary-700 mb-4">
-                        Welcome to DCIP! Start by uploading a CSV file with your Google Maps scraped data.
+                        Welcome to DCIP! Start by uploading a CSV file with your Google Maps scraped
+                        data.
                     </p>
                     <Link to="/upload" className="btn-primary inline-flex">
                         Upload your first CSV

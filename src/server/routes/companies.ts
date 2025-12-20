@@ -10,6 +10,11 @@ const router = Router();
 router.get('/', authMiddleware, async (req, res) => {
     try {
         const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         const { page = '1', limit = '20', status, search } = req.query;
 
         const pageNum = parseInt(page as string, 10);
@@ -72,6 +77,10 @@ router.get('/:id', authMiddleware, async (req, res) => {
         const userId = req.userId;
         const { id } = req.params;
 
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         const company = await prisma.company.findFirst({
             where: { id, userId },
             include: {
@@ -101,6 +110,10 @@ router.put('/:id', authMiddleware, async (req, res) => {
     try {
         const userId = req.userId;
         const { id } = req.params;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
 
         const updateSchema = z.object({
             companyName: z.string().min(1).optional(),
@@ -138,6 +151,10 @@ router.delete('/:id', authMiddleware, async (req, res) => {
         const userId = req.userId;
         const { id } = req.params;
 
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         const result = await prisma.company.deleteMany({
             where: { id, userId },
         });
@@ -157,6 +174,11 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 router.post('/bulk-delete', authMiddleware, async (req, res) => {
     try {
         const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         const { ids } = z.object({ ids: z.array(z.string()) }).parse(req.body);
 
         const result = await prisma.company.deleteMany({
@@ -177,6 +199,10 @@ router.post('/bulk-delete', authMiddleware, async (req, res) => {
 router.get('/stats/summary', authMiddleware, async (req, res) => {
     try {
         const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
 
         const [total, pending, researching, completed, failed] = await Promise.all([
             prisma.company.count({ where: { userId } }),

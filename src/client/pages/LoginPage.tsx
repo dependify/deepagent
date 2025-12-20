@@ -42,7 +42,10 @@ export default function LoginPage() {
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+                            <label
+                                htmlFor="email"
+                                className="block text-sm font-medium text-slate-700 mb-1"
+                            >
                                 Email
                             </label>
                             <input
@@ -57,7 +60,10 @@ export default function LoginPage() {
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
+                            <label
+                                htmlFor="password"
+                                className="block text-sm font-medium text-slate-700 mb-1"
+                            >
                                 Password
                             </label>
                             <input
@@ -71,18 +77,17 @@ export default function LoginPage() {
                             />
                         </div>
 
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full btn-primary"
-                        >
+                        <button type="submit" disabled={isLoading} className="w-full btn-primary">
                             {isLoading ? 'Signing in...' : 'Sign in'}
                         </button>
                     </form>
 
                     <p className="mt-6 text-center text-sm text-slate-600">
                         Don't have an account?{' '}
-                        <Link to="/register" className="text-primary-600 hover:text-primary-700 font-medium">
+                        <Link
+                            to="/register"
+                            className="text-primary-600 hover:text-primary-700 font-medium"
+                        >
                             Sign up
                         </Link>
                     </p>

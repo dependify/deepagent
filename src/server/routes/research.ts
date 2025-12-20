@@ -11,10 +11,12 @@ const router = Router();
 router.post('/start', authMiddleware, async (req, res) => {
     try {
         const userId = req.userId;
-        const { companyId, priority = 0 } = z.object({
-            companyId: z.string(),
-            priority: z.number().min(0).max(10).optional(),
-        }).parse(req.body);
+        const { companyId, priority = 0 } = z
+            .object({
+                companyId: z.string(),
+                priority: z.number().min(0).max(10).optional(),
+            })
+            .parse(req.body);
 
         // Verify company belongs to user
         const company = await prisma.company.findFirst({
@@ -34,7 +36,9 @@ router.post('/start', authMiddleware, async (req, res) => {
         });
 
         if (existingJob) {
-            return res.status(400).json({ error: 'Research job already in progress', jobId: existingJob.id });
+            return res
+                .status(400)
+                .json({ error: 'Research job already in progress', jobId: existingJob.id });
         }
 
         // Create research job
@@ -115,10 +119,12 @@ router.post('/execute/:companyId', authMiddleware, async (req, res) => {
 router.post('/batch', authMiddleware, async (req, res) => {
     try {
         const userId = req.userId;
-        const { companyIds, priority = 0 } = z.object({
-            companyIds: z.array(z.string()),
-            priority: z.number().min(0).max(10).optional(),
-        }).parse(req.body);
+        const { companyIds, priority = 0 } = z
+            .object({
+                companyIds: z.array(z.string()),
+                priority: z.number().min(0).max(10).optional(),
+            })
+            .parse(req.body);
 
         // Verify all companies belong to user
         const companies = await prisma.company.findMany({
@@ -165,6 +171,11 @@ router.post('/batch', authMiddleware, async (req, res) => {
 router.get('/:id/status', authMiddleware, async (req, res) => {
     try {
         const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         const { id } = req.params;
 
         const job = await prisma.researchJob.findFirst({
@@ -209,6 +220,11 @@ router.get('/:id/status', authMiddleware, async (req, res) => {
 router.get('/:id/result', authMiddleware, async (req, res) => {
     try {
         const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         const { id } = req.params;
 
         const job = await prisma.researchJob.findFirst({
@@ -241,6 +257,11 @@ router.get('/:id/result', authMiddleware, async (req, res) => {
 router.post('/:id/cancel', authMiddleware, async (req, res) => {
     try {
         const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         const { id } = req.params;
 
         const job = await prisma.researchJob.findFirst({
@@ -279,6 +300,10 @@ router.get('/queue/status', authMiddleware, async (req, res) => {
     try {
         const userId = req.userId;
 
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         const jobs = await prisma.researchJob.findMany({
             where: {
                 userId,
@@ -289,10 +314,7 @@ router.get('/queue/status', authMiddleware, async (req, res) => {
                     select: { companyName: true },
                 },
             },
-            orderBy: [
-                { priority: 'desc' },
-                { createdAt: 'asc' },
-            ],
+            orderBy: [{ priority: 'desc' }, { createdAt: 'asc' }],
         });
 
         res.json({ queue: jobs });

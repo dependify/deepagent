@@ -143,7 +143,9 @@ export default function CompaniesPage() {
                                 <tr key={company.id}>
                                     <td>
                                         <div>
-                                            <p className="font-medium text-slate-900">{company.companyName}</p>
+                                            <p className="font-medium text-slate-900">
+                                                {company.companyName}
+                                            </p>
                                             {company.website && (
                                                 <p className="text-xs text-slate-500 truncate max-w-[200px]">
                                                     {company.website}
@@ -192,7 +194,9 @@ export default function CompaniesPage() {
                             Previous
                         </button>
                         <button
-                            onClick={() => setCurrentPage((p) => Math.min(pagination.totalPages, p + 1))}
+                            onClick={() =>
+                                setCurrentPage((p) => Math.min(pagination.totalPages, p + 1))
+                            }
                             disabled={currentPage === pagination.totalPages}
                             className="btn-secondary text-sm"
                         >

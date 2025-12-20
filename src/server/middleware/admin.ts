@@ -1,6 +1,6 @@
 /**
  * Admin Middleware
- * 
+ *
  * Checks if the authenticated user has admin role.
  */
 
@@ -38,7 +38,7 @@ export async function adminMiddleware(req: Request, res: Response, next: NextFun
 
 /**
  * Approved user middleware
- * 
+ *
  * Checks if the user's account has been approved.
  */
 export async function approvedMiddleware(req: Request, res: Response, next: NextFunction) {

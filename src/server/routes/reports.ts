@@ -11,6 +11,11 @@ const router = Router();
 router.get('/', authMiddleware, async (req, res) => {
     try {
         const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         const { page = '1', limit = '20' } = req.query;
 
         const pageNum = parseInt(page as string, 10);
@@ -53,6 +58,10 @@ router.get('/:id', authMiddleware, async (req, res) => {
         const userId = req.userId;
         const { id } = req.params;
 
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         const report = await prisma.report.findFirst({
             where: { id, userId },
             include: {
@@ -76,6 +85,10 @@ router.get('/:id/download/md', authMiddleware, async (req, res) => {
     try {
         const userId = req.userId;
         const { id } = req.params;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
 
         const report = await prisma.report.findFirst({
             where: { id, userId },
@@ -106,6 +119,10 @@ router.get('/:id/download/pdf', authMiddleware, async (req, res) => {
     try {
         const userId = req.userId;
         const { id } = req.params;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
 
         const report = await prisma.report.findFirst({
             where: { id, userId },
@@ -140,6 +157,10 @@ router.post('/generate/:companyId', authMiddleware, async (req, res) => {
         const userId = req.userId;
         const { companyId } = req.params;
 
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         // Get company with research results
         const company = await prisma.company.findFirst({
             where: { id: companyId, userId },
@@ -158,7 +179,10 @@ router.post('/generate/:companyId', authMiddleware, async (req, res) => {
 
         // Check completeness threshold
         if (company.researchResult.completenessScore < 60) {
-            logger.warn({ companyId, score: company.researchResult.completenessScore }, 'Completeness below threshold');
+            logger.warn(
+                { companyId, score: company.researchResult.completenessScore },
+                'Completeness below threshold'
+            );
         }
 
         // Generate markdown report
@@ -222,6 +246,10 @@ router.post('/generate-pdf/:companyId', authMiddleware, async (req, res) => {
         const userId = req.userId;
         const { companyId } = req.params;
 
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         // Verify ownership
         const company = await prisma.company.findFirst({
             where: { id: companyId, userId },
@@ -255,6 +283,10 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     try {
         const userId = req.userId;
         const { id } = req.params;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
 
         const result = await prisma.report.deleteMany({
             where: { id, userId },
