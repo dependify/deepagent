@@ -52,9 +52,7 @@ export default function ReportsPage() {
         <div className="animate-fade-in">
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-slate-900">Intelligence Reports</h1>
-                <p className="text-slate-600 mt-1">
-                    View and download generated company reports
-                </p>
+                <p className="text-slate-600 mt-1">View and download generated company reports</p>
             </div>
 
             {isLoading ? (
@@ -81,25 +79,33 @@ export default function ReportsPage() {
                             <div className="grid grid-cols-2 gap-2 text-sm mb-4">
                                 <div>
                                     <p className="text-slate-500">Digital</p>
-                                    <p className={`font-semibold ${scoreColor(report.digitalMaturityScore)}`}>
+                                    <p
+                                        className={`font-semibold ${scoreColor(report.digitalMaturityScore)}`}
+                                    >
                                         {report.digitalMaturityScore ?? '-'}%
                                     </p>
                                 </div>
                                 <div>
                                     <p className="text-slate-500">Social</p>
-                                    <p className={`font-semibold ${scoreColor(report.socialPresenceScore)}`}>
+                                    <p
+                                        className={`font-semibold ${scoreColor(report.socialPresenceScore)}`}
+                                    >
                                         {report.socialPresenceScore ?? '-'}%
                                     </p>
                                 </div>
                                 <div>
                                     <p className="text-slate-500">Reputation</p>
-                                    <p className={`font-semibold ${scoreColor(report.reputationScore)}`}>
+                                    <p
+                                        className={`font-semibold ${scoreColor(report.reputationScore)}`}
+                                    >
                                         {report.reputationScore ?? '-'}%
                                     </p>
                                 </div>
                                 <div>
                                     <p className="text-slate-500">Opportunity</p>
-                                    <p className={`font-semibold ${scoreColor(report.opportunityScore)}`}>
+                                    <p
+                                        className={`font-semibold ${scoreColor(report.opportunityScore)}`}
+                                    >
                                         {report.opportunityScore ?? '-'}%
                                     </p>
                                 </div>

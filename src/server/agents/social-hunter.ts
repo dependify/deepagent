@@ -1,6 +1,6 @@
 /**
  * Social Media Hunter Agent
- * 
+ *
  * Finds and analyzes social media presence for companies.
  * Uses Exa.ai for intelligent search and Tavily for verification.
  */
@@ -157,10 +157,11 @@ async function searchPlatform(
         }
 
         // Find best matching result
-        const bestMatch = results.results.find((r: any) =>
-            r.url?.includes(domain) &&
-            (r.title?.toLowerCase().includes(companyName.toLowerCase()) ||
-                r.url?.toLowerCase().includes(companyName.toLowerCase().replace(/\s+/g, '')))
+        const bestMatch = results.results.find(
+            (r: any) =>
+                r.url?.includes(domain) &&
+                (r.title?.toLowerCase().includes(companyName.toLowerCase()) ||
+                    r.url?.toLowerCase().includes(companyName.toLowerCase().replace(/\s+/g, '')))
         );
 
         if (!bestMatch) {
@@ -258,12 +259,14 @@ export async function huntSocialProfiles(
             result.mostActivePlatform = foundProfiles[0].platform;
         }
 
-        logger.info({
-            companyName,
-            found: foundProfiles.length,
-            score: result.socialPresenceScore
-        }, 'Social media hunt complete');
-
+        logger.info(
+            {
+                companyName,
+                found: foundProfiles.length,
+                score: result.socialPresenceScore,
+            },
+            'Social media hunt complete'
+        );
     } catch (error) {
         logger.error({ companyName, error }, 'Social media hunt failed');
         result.errors?.push((error as Error).message);

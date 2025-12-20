@@ -1,6 +1,6 @@
 /**
  * Markdown Report Generator
- * 
+ *
  * Generates comprehensive marketing intelligence reports in Markdown format.
  */
 
@@ -51,10 +51,14 @@ function generateExecutiveSummary(intel: ComprehensiveIntelligence): string {
 
 **Data Completeness:** ${intel.completenessScore}% | **Confidence:** ${intel.confidenceScore}%
 
-${intel.dataGaps.length > 0 ? `
+${
+    intel.dataGaps.length > 0
+        ? `
 ### Data Gaps
-${intel.dataGaps.map(gap => `- ⚠️ ${gap}`).join('\n')}
-` : ''}
+${intel.dataGaps.map((gap) => `- ⚠️ ${gap}`).join('\n')}
+`
+        : ''
+}
 `;
 }
 
@@ -107,9 +111,13 @@ ${website?.errors?.length ? `Errors encountered: ${website.errors.join(', ')}` :
 | Team Page | ${website.contentInventory?.hasTeamPage ? '✅ Yes' : '❌ No'} |
 
 ### Social Links Found
-${website.socialLinks && Object.keys(website.socialLinks).length > 0
-            ? Object.entries(website.socialLinks).map(([platform, url]) => `- **${platform}:** ${url}`).join('\n')
-            : '- None found on website'}
+${
+    website.socialLinks && Object.keys(website.socialLinks).length > 0
+        ? Object.entries(website.socialLinks)
+              .map(([platform, url]) => `- **${platform}:** ${url}`)
+              .join('\n')
+        : '- None found on website'
+}
 `;
 }
 
@@ -139,9 +147,12 @@ function generateSocialSection(intel: ComprehensiveIntelligence): string {
 
 | Platform | Handle | Verified | Confidence |
 |----------|--------|----------|------------|
-${social.platforms.map(p =>
-        `| ${p.platform} | ${p.handle || 'N/A'} | ${p.verified ? '✅' : '❓'} | ${p.confidenceScore}% |`
-    ).join('\n')}
+${social.platforms
+    .map(
+        (p) =>
+            `| ${p.platform} | ${p.handle || 'N/A'} | ${p.verified ? '✅' : '❓'} | ${p.confidenceScore}% |`
+    )
+    .join('\n')}
 
 ${social.mostActivePlatform ? `**Most Active Platform:** ${social.mostActivePlatform}` : ''}
 `;
@@ -165,25 +176,40 @@ No news or reputation data available.
 ## News & Reputation
 
 **Reputation Score:** ${formatScore(news.reputationScore)}
-**Overall Sentiment:** ${news.overallSentiment === 'positive' ? '😊 Positive' :
-            news.overallSentiment === 'negative' ? '😞 Negative' :
-                news.overallSentiment === 'mixed' ? '😐 Mixed' : '😐 Neutral'}
+**Overall Sentiment:** ${
+        news.overallSentiment === 'positive'
+            ? '😊 Positive'
+            : news.overallSentiment === 'negative'
+              ? '😞 Negative'
+              : news.overallSentiment === 'mixed'
+                ? '😐 Mixed'
+                : '😐 Neutral'
+    }
 
 ### News Coverage
 - **Total Mentions:** ${news.totalMentions}
 - **Positive:** ${news.positiveCount} | **Neutral:** ${news.neutralCount} | **Negative:** ${news.negativeCount}
 
-${news.riskFlags.length > 0 ? `
+${
+    news.riskFlags.length > 0
+        ? `
 ### ⚠️ Risk Flags
-${news.riskFlags.map(flag => `- 🚨 ${flag}`).join('\n')}
-` : ''}
+${news.riskFlags.map((flag) => `- 🚨 ${flag}`).join('\n')}
+`
+        : ''
+}
 
-${news.newsArticles.length > 0 ? `
+${
+    news.newsArticles.length > 0
+        ? `
 ### Recent Mentions
-${news.newsArticles.slice(0, 5).map(article =>
-                    `- **${article.title}** (${article.source}) - ${article.sentiment}`
-                ).join('\n')}
-` : ''}
+${news.newsArticles
+    .slice(0, 5)
+    .map((article) => `- **${article.title}** (${article.source}) - ${article.sentiment}`)
+    .join('\n')}
+`
+        : ''
+}
 `;
 }
 
@@ -210,20 +236,27 @@ No specific opportunities identified at this time.
 
 | Priority | Area | Gap | Recommendation | Impact |
 |----------|------|-----|----------------|--------|
-${business.opportunities.map(opp =>
-        `| ${opp.priority} | ${opp.area} | ${opp.gap} | ${opp.recommendation} | ${opp.impact.toUpperCase()} |`
-    ).join('\n')}
+${business.opportunities
+    .map(
+        (opp) =>
+            `| ${opp.priority} | ${opp.area} | ${opp.gap} | ${opp.recommendation} | ${opp.impact.toUpperCase()} |`
+    )
+    .join('\n')}
 
 ### Suggested Services
-${business.suggestedServices.map(service => `- ✅ ${service}`).join('\n')}
+${business.suggestedServices.map((service) => `- ✅ ${service}`).join('\n')}
 
 ### Discovery Call Talking Points
 ${business.talkingPoints.map((point, i) => `${i + 1}. ${point}`).join('\n')}
 
-${business.potentialObjections.length > 0 ? `
+${
+    business.potentialObjections.length > 0
+        ? `
 ### Potential Objections to Prepare For
-${business.potentialObjections.map(obj => `- "${obj}"`).join('\n')}
-` : ''}
+${business.potentialObjections.map((obj) => `- "${obj}"`).join('\n')}
+`
+        : ''
+}
 `;
 }
 

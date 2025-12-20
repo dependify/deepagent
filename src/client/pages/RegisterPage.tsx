@@ -43,7 +43,10 @@ export default function RegisterPage() {
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
+                            <label
+                                htmlFor="name"
+                                className="block text-sm font-medium text-slate-700 mb-1"
+                            >
                                 Name (optional)
                             </label>
                             <input
@@ -57,7 +60,10 @@ export default function RegisterPage() {
                         </div>
 
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+                            <label
+                                htmlFor="email"
+                                className="block text-sm font-medium text-slate-700 mb-1"
+                            >
                                 Email
                             </label>
                             <input
@@ -72,7 +78,10 @@ export default function RegisterPage() {
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
+                            <label
+                                htmlFor="password"
+                                className="block text-sm font-medium text-slate-700 mb-1"
+                            >
                                 Password
                             </label>
                             <input
@@ -88,18 +97,17 @@ export default function RegisterPage() {
                             <p className="text-xs text-slate-500 mt-1">Minimum 8 characters</p>
                         </div>
 
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full btn-primary"
-                        >
+                        <button type="submit" disabled={isLoading} className="w-full btn-primary">
                             {isLoading ? 'Creating account...' : 'Create account'}
                         </button>
                     </form>
 
                     <p className="mt-6 text-center text-sm text-slate-600">
                         Already have an account?{' '}
-                        <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">
+                        <Link
+                            to="/login"
+                            className="text-primary-600 hover:text-primary-700 font-medium"
+                        >
                             Sign in
                         </Link>
                     </p>

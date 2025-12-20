@@ -1,6 +1,6 @@
 /**
  * Website Analyst Agent
- * 
+ *
  * Extracts comprehensive intelligence from company websites using Firecrawl.
  * Falls back to Tavily for content analysis if scraping fails.
  */
@@ -97,7 +97,7 @@ async function scrapeWithFirecrawl(url: string): Promise<any> {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
+            Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
             url,
@@ -155,11 +155,12 @@ async function searchWithTavily(query: string): Promise<any> {
 function extractEmails(content: string): string[] {
     const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
     const matches = content.match(emailRegex) || [];
-    return [...new Set(matches)].filter(email =>
-        !email.includes('example.com') &&
-        !email.includes('test.com') &&
-        !email.endsWith('.png') &&
-        !email.endsWith('.jpg')
+    return [...new Set(matches)].filter(
+        (email) =>
+            !email.includes('example.com') &&
+            !email.includes('test.com') &&
+            !email.endsWith('.png') &&
+            !email.endsWith('.jpg')
     );
 }
 
@@ -200,7 +201,10 @@ function extractSocialLinks(content: string): WebsiteAnalysisResult['socialLinks
 /**
  * Analyze website for a company
  */
-export async function analyzeWebsite(url: string, companyName: string): Promise<WebsiteAnalysisResult> {
+export async function analyzeWebsite(
+    url: string,
+    companyName: string
+): Promise<WebsiteAnalysisResult> {
     logger.info({ url, companyName }, 'Starting website analysis');
 
     const result: WebsiteAnalysisResult = {
@@ -230,7 +234,9 @@ export async function analyzeWebsite(url: string, companyName: string): Promise<
 
             // Fallback to Tavily search
             try {
-                const tavilyResult = await searchWithTavily(`${companyName} ${url} company information`);
+                const tavilyResult = await searchWithTavily(
+                    `${companyName} ${url} company information`
+                );
                 if (tavilyResult.answer) {
                     result.status = 'live';
                     result.businessInfo = {
@@ -258,7 +264,8 @@ export async function analyzeWebsite(url: string, companyName: string): Promise<
             result.contactInfo = {
                 emails: extractEmails(content),
                 phones: extractPhones(content),
-                hasLiveChat: content.toLowerCase().includes('live chat') ||
+                hasLiveChat:
+                    content.toLowerCase().includes('live chat') ||
                     content.toLowerCase().includes('intercom') ||
                     content.toLowerCase().includes('drift'),
             };
@@ -295,9 +302,11 @@ export async function analyzeWebsite(url: string, companyName: string): Promise<
             result.confidenceScore = Math.min(confidence, 100);
         }
 
-        logger.info({ url, status: result.status, confidence: result.confidenceScore }, 'Website analysis complete');
+        logger.info(
+            { url, status: result.status, confidence: result.confidenceScore },
+            'Website analysis complete'
+        );
         return result;
-
     } catch (error) {
         logger.error({ url, error }, 'Website analysis failed');
         result.errors?.push((error as Error).message);

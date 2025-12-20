@@ -1,6 +1,6 @@
 /**
  * Research Orchestrator
- * 
+ *
  * Coordinates all research agents to gather comprehensive company intelligence.
  * Manages parallel execution, data fusion, and quality checks.
  */
@@ -11,7 +11,10 @@ import { config } from '../config/index.js';
 import { analyzeWebsite, type WebsiteAnalysisResult } from '../agents/website-analyst.js';
 import { huntSocialProfiles, type SocialHuntResult } from '../agents/social-hunter.js';
 import { aggregateNewsReputation, type NewsReputationResult } from '../agents/news-aggregator.js';
-import { analyzeBusinessOpportunities, type BusinessAnalysisResult } from '../agents/business-analyzer.js';
+import {
+    analyzeBusinessOpportunities,
+    type BusinessAnalysisResult,
+} from '../agents/business-analyzer.js';
 import { AgentStatus } from '@prisma/client';
 
 const logger = createLogger('orchestrator');
@@ -117,7 +120,10 @@ function calculateCompleteness(intel: ComprehensiveIntelligence): number {
     }
 
     // Contact info
-    if (intel.websiteData?.contactInfo?.emails?.length || intel.websiteData?.contactInfo?.phones?.length) {
+    if (
+        intel.websiteData?.contactInfo?.emails?.length ||
+        intel.websiteData?.contactInfo?.phones?.length
+    ) {
         score += weights.contactInfo;
     }
 
@@ -147,7 +153,7 @@ function identifyDataGaps(intel: ComprehensiveIntelligence): string[] {
         gaps.push('No social profiles found');
     }
 
-    if (!intel.socialData?.platforms.find(p => p.platform === 'linkedin')) {
+    if (!intel.socialData?.platforms.find((p) => p.platform === 'linkedin')) {
         gaps.push('LinkedIn profile not found');
     }
 
@@ -267,9 +273,10 @@ export async function executeResearch(jobId: string): Promise<ComprehensiveIntel
         intel.completenessScore = calculateCompleteness(intel);
         intel.confidenceScore = Math.round(
             (intel.websiteData?.confidenceScore || 0) / 2 +
-            (intel.socialData?.platforms.reduce((sum, p) => sum + p.confidenceScore, 0) || 0) /
-            (intel.socialData?.platforms.length || 1) / 4 +
-            25
+                (intel.socialData?.platforms.reduce((sum, p) => sum + p.confidenceScore, 0) || 0) /
+                    (intel.socialData?.platforms.length || 1) /
+                    4 +
+                25
         );
 
         intel.dataGaps = identifyDataGaps(intel);
@@ -282,24 +289,40 @@ export async function executeResearch(jobId: string): Promise<ComprehensiveIntel
                 completenessScore: intel.completenessScore,
                 confidenceScore: intel.confidenceScore,
                 qualityScore: intel.completenessScore,
-                websiteData: intel.websiteData as any,
-                socialMediaData: intel.socialData as any,
-                newsData: intel.newsData as any,
-                businessAnalysisData: intel.businessData as any,
-                mergedIntelligence: intel as any,
-                opportunities: intel.businessData?.opportunities as any,
+                websiteData: intel.websiteData
+                    ? JSON.parse(JSON.stringify(intel.websiteData))
+                    : undefined,
+                socialMediaData: intel.socialData
+                    ? JSON.parse(JSON.stringify(intel.socialData))
+                    : undefined,
+                newsData: intel.newsData ? JSON.parse(JSON.stringify(intel.newsData)) : undefined,
+                businessAnalysisData: intel.businessData
+                    ? JSON.parse(JSON.stringify(intel.businessData))
+                    : undefined,
+                mergedIntelligence: JSON.parse(JSON.stringify(intel)),
+                opportunities: intel.businessData?.opportunities
+                    ? JSON.parse(JSON.stringify(intel.businessData.opportunities))
+                    : undefined,
                 dataGaps: intel.dataGaps,
             },
             update: {
                 completenessScore: intel.completenessScore,
                 confidenceScore: intel.confidenceScore,
                 qualityScore: intel.completenessScore,
-                websiteData: intel.websiteData as any,
-                socialMediaData: intel.socialData as any,
-                newsData: intel.newsData as any,
-                businessAnalysisData: intel.businessData as any,
-                mergedIntelligence: intel as any,
-                opportunities: intel.businessData?.opportunities as any,
+                websiteData: intel.websiteData
+                    ? JSON.parse(JSON.stringify(intel.websiteData))
+                    : undefined,
+                socialMediaData: intel.socialData
+                    ? JSON.parse(JSON.stringify(intel.socialData))
+                    : undefined,
+                newsData: intel.newsData ? JSON.parse(JSON.stringify(intel.newsData)) : undefined,
+                businessAnalysisData: intel.businessData
+                    ? JSON.parse(JSON.stringify(intel.businessData))
+                    : undefined,
+                mergedIntelligence: JSON.parse(JSON.stringify(intel)),
+                opportunities: intel.businessData?.opportunities
+                    ? JSON.parse(JSON.stringify(intel.businessData.opportunities))
+                    : undefined,
                 dataGaps: intel.dataGaps,
                 updatedAt: new Date(),
             },
@@ -319,14 +342,16 @@ export async function executeResearch(jobId: string): Promise<ComprehensiveIntel
             data: { status: 'COMPLETED' },
         });
 
-        logger.info({
-            jobId,
-            completeness: intel.completenessScore,
-            gaps: intel.dataGaps.length
-        }, 'Research complete');
+        logger.info(
+            {
+                jobId,
+                completeness: intel.completenessScore,
+                gaps: intel.dataGaps.length,
+            },
+            'Research complete'
+        );
 
         return intel;
-
     } catch (error) {
         logger.error({ jobId, error }, 'Research failed');
 

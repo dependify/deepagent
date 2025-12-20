@@ -8,5 +8,5 @@ export {
     captureAndSaveScreenshot,
     captureMultipleScreenshots,
     type ScreenshotResult,
-    type ScreenshotOptions
+    type ScreenshotOptions,
 } from './screenshot-capture.js';

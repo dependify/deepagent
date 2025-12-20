@@ -9,7 +9,12 @@ const router = Router();
 // GET /api/companies - List all companies for user
 router.get('/', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         const { page = '1', limit = '20', status, search } = req.query;
 
         const pageNum = parseInt(page as string, 10);
@@ -69,8 +74,12 @@ router.get('/', authMiddleware, async (req, res) => {
 // GET /api/companies/:id - Get single company with details
 router.get('/:id', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const { id } = req.params;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
 
         const company = await prisma.company.findFirst({
             where: { id, userId },
@@ -99,8 +108,12 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // PUT /api/companies/:id - Update company
 router.put('/:id', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const { id } = req.params;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
 
         const updateSchema = z.object({
             companyName: z.string().min(1).optional(),
@@ -135,8 +148,12 @@ router.put('/:id', authMiddleware, async (req, res) => {
 // DELETE /api/companies/:id - Delete company
 router.delete('/:id', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const { id } = req.params;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
 
         const result = await prisma.company.deleteMany({
             where: { id, userId },
@@ -156,7 +173,12 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 // POST /api/companies/bulk-delete - Delete multiple companies
 router.post('/bulk-delete', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         const { ids } = z.object({ ids: z.array(z.string()) }).parse(req.body);
 
         const result = await prisma.company.deleteMany({
@@ -176,7 +198,11 @@ router.post('/bulk-delete', authMiddleware, async (req, res) => {
 // GET /api/companies/stats - Get company statistics
 router.get('/stats/summary', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
 
         const [total, pending, researching, completed, failed] = await Promise.all([
             prisma.company.count({ where: { userId } }),

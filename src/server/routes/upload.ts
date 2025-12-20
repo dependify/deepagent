@@ -42,7 +42,12 @@ router.post('/csv', authMiddleware, upload.single('file'), async (req, res) => {
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
-        const userId = (req as any).userId;
+        const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         const csvContent = req.file.buffer.toString('utf-8');
 
         // Parse CSV
@@ -74,7 +79,9 @@ router.post('/csv', authMiddleware, upload.single('file'), async (req, res) => {
                     website: validated.website || null,
                     category: validated.category || null,
                     rating: validated.rating ? parseFloat(validated.rating) : null,
-                    reviewsCount: validated.reviews_count ? parseInt(validated.reviews_count, 10) : null,
+                    reviewsCount: validated.reviews_count
+                        ? parseInt(validated.reviews_count, 10)
+                        : null,
                     placeId: validated.place_id || null,
                     status: 'PENDING',
                 });
@@ -104,7 +111,10 @@ router.post('/csv', authMiddleware, upload.single('file'), async (req, res) => {
         });
 
         const existingSet = new Set(
-            existingCompanies.map((c) => `${c.companyName.toLowerCase()}-${c.address?.toLowerCase() || ''}-${c.phone || ''}`)
+            existingCompanies.map(
+                (c) =>
+                    `${c.companyName.toLowerCase()}-${c.address?.toLowerCase() || ''}-${c.phone || ''}`
+            )
         );
 
         const newCompanies = deduped.filter((c) => {
@@ -122,14 +132,17 @@ router.post('/csv', authMiddleware, upload.single('file'), async (req, res) => {
             created = result.count;
         }
 
-        logger.info({
-            userId,
-            totalRows: rows.length,
-            valid: validCompanies.length,
-            duplicatesRemoved: validCompanies.length - deduped.length,
-            alreadyExists: deduped.length - newCompanies.length,
-            created,
-        }, 'CSV import completed');
+        logger.info(
+            {
+                userId,
+                totalRows: rows.length,
+                valid: validCompanies.length,
+                duplicatesRemoved: validCompanies.length - deduped.length,
+                alreadyExists: deduped.length - newCompanies.length,
+                created,
+            },
+            'CSV import completed'
+        );
 
         res.json({
             success: true,

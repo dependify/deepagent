@@ -1,6 +1,6 @@
 /**
  * Screenshot Capture Service
- * 
+ *
  * Captures website screenshots using Puppeteer.
  */
 
@@ -96,7 +96,7 @@ export async function captureScreenshot(
         });
 
         // Wait a bit for any animations
-        await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 1000)));
+        await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 1000)));
 
         // Capture screenshot
         const screenshotBuffer = await page.screenshot({
@@ -109,7 +109,6 @@ export async function captureScreenshot(
         result.buffer = Buffer.from(screenshotBuffer);
 
         logger.info({ url }, 'Screenshot captured successfully');
-
     } catch (error) {
         logger.error({ url, error }, 'Screenshot capture failed');
         result.error = (error as Error).message;

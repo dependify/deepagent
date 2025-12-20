@@ -1,6 +1,6 @@
 /**
  * News & Reputation Aggregator Agent
- * 
+ *
  * Gathers news mentions, reviews, and reputation data using Tavily and Exa.
  */
 
@@ -71,7 +71,12 @@ async function searchNews(query: string): Promise<any> {
             search_depth: 'advanced',
             include_answer: true,
             max_results: 10,
-            include_domains: ['news.google.com', 'reuters.com', 'businesswire.com', 'prnewswire.com'],
+            include_domains: [
+                'news.google.com',
+                'reuters.com',
+                'businesswire.com',
+                'prnewswire.com',
+            ],
         }),
     });
 
@@ -100,7 +105,13 @@ async function searchReviews(companyName: string): Promise<any> {
                 query: `${companyName} reviews ratings customer feedback`,
                 type: 'neural',
                 numResults: 10,
-                includeDomains: ['google.com', 'yelp.com', 'trustpilot.com', 'bbb.org', 'glassdoor.com'],
+                includeDomains: [
+                    'google.com',
+                    'yelp.com',
+                    'trustpilot.com',
+                    'bbb.org',
+                    'glassdoor.com',
+                ],
             }),
         });
 
@@ -117,8 +128,38 @@ async function searchReviews(companyName: string): Promise<any> {
 function analyzeSentiment(text: string): 'positive' | 'negative' | 'neutral' {
     const lowerText = text.toLowerCase();
 
-    const positiveWords = ['great', 'excellent', 'amazing', 'wonderful', 'best', 'fantastic', 'love', 'perfect', 'outstanding', 'recommended', 'success', 'growth', 'award', 'winner'];
-    const negativeWords = ['bad', 'terrible', 'awful', 'worst', 'poor', 'disappointed', 'scam', 'fraud', 'lawsuit', 'complaint', 'failed', 'bankruptcy', 'sued', 'violation'];
+    const positiveWords = [
+        'great',
+        'excellent',
+        'amazing',
+        'wonderful',
+        'best',
+        'fantastic',
+        'love',
+        'perfect',
+        'outstanding',
+        'recommended',
+        'success',
+        'growth',
+        'award',
+        'winner',
+    ];
+    const negativeWords = [
+        'bad',
+        'terrible',
+        'awful',
+        'worst',
+        'poor',
+        'disappointed',
+        'scam',
+        'fraud',
+        'lawsuit',
+        'complaint',
+        'failed',
+        'bankruptcy',
+        'sued',
+        'violation',
+    ];
 
     let positiveScore = 0;
     let negativeScore = 0;
@@ -233,7 +274,7 @@ export async function aggregateNewsReputation(
             const positiveRatio = result.positiveCount / total;
             const negativeRatio = result.negativeCount / total;
 
-            result.reputationScore = Math.round(50 + (positiveRatio * 40) - (negativeRatio * 40));
+            result.reputationScore = Math.round(50 + positiveRatio * 40 - negativeRatio * 40);
             result.reputationScore = Math.max(0, Math.min(100, result.reputationScore));
 
             // Reduce score for risk flags
@@ -251,18 +292,20 @@ export async function aggregateNewsReputation(
         }
 
         // Notable stories (first positive and first negative)
-        const positiveStory = result.newsArticles.find(a => a.sentiment === 'positive');
-        const negativeStory = result.newsArticles.find(a => a.sentiment === 'negative');
+        const positiveStory = result.newsArticles.find((a) => a.sentiment === 'positive');
+        const negativeStory = result.newsArticles.find((a) => a.sentiment === 'negative');
 
         if (positiveStory) result.notableStories.push(positiveStory.title);
         if (negativeStory) result.notableStories.push(negativeStory.title);
 
-        logger.info({
-            companyName,
-            mentions: result.totalMentions,
-            score: result.reputationScore
-        }, 'News aggregation complete');
-
+        logger.info(
+            {
+                companyName,
+                mentions: result.totalMentions,
+                score: result.reputationScore,
+            },
+            'News aggregation complete'
+        );
     } catch (error) {
         logger.error({ companyName, error }, 'News aggregation failed');
         result.errors?.push((error as Error).message);

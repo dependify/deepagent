@@ -1,6 +1,6 @@
 /**
  * Profile Routes
- * 
+ *
  * User profile management for both users and admins.
  */
 
@@ -19,7 +19,11 @@ router.use(authMiddleware);
 // GET /api/profile - Get current user profile
 router.get('/', async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
 
         const user = await prisma.user.findUnique({
             where: { id: userId },
@@ -58,7 +62,12 @@ const updateProfileSchema = z.object({
 // PUT /api/profile - Update current user profile
 router.put('/', async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         const data = updateProfileSchema.parse(req.body);
 
         const user = await prisma.user.update({
@@ -94,7 +103,12 @@ const changePasswordSchema = z.object({
 // PUT /api/profile/password - Change password
 router.put('/password', async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
         const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
 
         const user = await prisma.user.findUnique({

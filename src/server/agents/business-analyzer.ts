@@ -1,6 +1,6 @@
 /**
  * Business Process Analyzer Agent
- * 
+ *
  * Identifies marketing opportunities and automation gaps.
  * Uses OpenRouter API for AI analysis.
  */
@@ -60,7 +60,7 @@ async function analyzeWithAI(prompt: string): Promise<string> {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
+                Authorization: `Bearer ${apiKey}`,
                 'HTTP-Referer': 'https://dcip.local',
             },
             body: JSON.stringify({
@@ -68,7 +68,8 @@ async function analyzeWithAI(prompt: string): Promise<string> {
                 messages: [
                     {
                         role: 'system',
-                        content: 'You are a marketing intelligence analyst. Analyze business data and identify opportunities for AI automation, website improvement, content marketing, and lead generation. Be concise and actionable.',
+                        content:
+                            'You are a marketing intelligence analyst. Analyze business data and identify opportunities for AI automation, website improvement, content marketing, and lead generation. Be concise and actionable.',
                     },
                     {
                         role: 'user',
@@ -178,8 +179,9 @@ function identifyOpportunities(
             priority: priority++,
         });
     } else if (social.platforms.length < 3) {
-        const missingPlatforms = ['linkedin', 'facebook', 'instagram']
-            .filter(p => !social.platforms.find(sp => sp.platform === p));
+        const missingPlatforms = ['linkedin', 'facebook', 'instagram'].filter(
+            (p) => !social.platforms.find((sp) => sp.platform === p)
+        );
 
         opportunities.push({
             area: 'Social Media Expansion',
@@ -225,14 +227,18 @@ function identifyOpportunities(
 function generateTalkingPoints(opportunities: MarketingOpportunity[]): string[] {
     const points: string[] = [];
 
-    const highImpact = opportunities.filter(o => o.impact === 'high').slice(0, 3);
+    const highImpact = opportunities.filter((o) => o.impact === 'high').slice(0, 3);
 
     for (const opp of highImpact) {
-        points.push(`I noticed ${opp.currentState.toLowerCase()}. ${opp.recommendation} could help grow your business.`);
+        points.push(
+            `I noticed ${opp.currentState.toLowerCase()}. ${opp.recommendation} could help grow your business.`
+        );
     }
 
     if (points.length === 0) {
-        points.push('Your digital presence looks solid. Let me share some advanced strategies to take it to the next level.');
+        points.push(
+            'Your digital presence looks solid. Let me share some advanced strategies to take it to the next level.'
+        );
     }
 
     return points;
@@ -277,7 +283,7 @@ export async function analyzeBusinessOpportunities(
         // Top 3 opportunities
         result.topOpportunities = result.opportunities
             .slice(0, 3)
-            .map(o => `${o.area}: ${o.recommendation}`);
+            .map((o) => `${o.area}: ${o.recommendation}`);
 
         // Suggested services based on gaps
         const services = new Set<string>();
@@ -298,7 +304,7 @@ export async function analyzeBusinessOpportunities(
         // Common objections
         result.potentialObjections = [
             'We already have someone handling our marketing',
-            'We tried digital marketing before and it didn\'t work',
+            "We tried digital marketing before and it didn't work",
             'We get most of our business through referrals',
         ];
 
@@ -314,16 +320,23 @@ Provide 2-3 specific, actionable recommendations as bullet points.`;
 
             const aiInsights = await analyzeWithAI(aiPrompt);
             if (aiInsights) {
-                result.talkingPoints.push(...aiInsights.split('\n').filter(l => l.trim().startsWith('-')).slice(0, 2));
+                result.talkingPoints.push(
+                    ...aiInsights
+                        .split('\n')
+                        .filter((l) => l.trim().startsWith('-'))
+                        .slice(0, 2)
+                );
             }
         }
 
-        logger.info({
-            companyName,
-            opportunities: result.opportunities.length,
-            maturity: result.marketingMaturityScore
-        }, 'Business analysis complete');
-
+        logger.info(
+            {
+                companyName,
+                opportunities: result.opportunities.length,
+                maturity: result.marketingMaturityScore,
+            },
+            'Business analysis complete'
+        );
     } catch (error) {
         logger.error({ companyName, error }, 'Business analysis failed');
         result.errors?.push((error as Error).message);

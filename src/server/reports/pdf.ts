@@ -1,6 +1,6 @@
 /**
  * PDF Report Generator
- * 
+ *
  * Converts Markdown reports to PDF using Puppeteer.
  */
 
@@ -28,13 +28,13 @@ function markdownToHtml(markdown: string): string {
         // Links
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
         // Lists
-        .replace(/^\- (.*$)/gim, '<li>$1</li>')
+        .replace(/^- (.*$)/gim, '<li>$1</li>')
         // Tables (basic conversion)
         .replace(/\|(.+)\|/g, (match) => {
-            const cells = match.split('|').filter(c => c.trim());
-            const isHeader = cells.some(c => c.includes('---'));
+            const cells = match.split('|').filter((c) => c.trim());
+            const isHeader = cells.some((c) => c.includes('---'));
             if (isHeader) return '';
-            return '<tr>' + cells.map(c => `<td>${c.trim()}</td>`).join('') + '</tr>';
+            return '<tr>' + cells.map((c) => `<td>${c.trim()}</td>`).join('') + '</tr>';
         })
         // Horizontal rules
         .replace(/^---$/gim, '<hr>')
@@ -201,7 +201,9 @@ export async function generatePdfReport(companyId: string): Promise<Buffer> {
     const markdown = await generateMarkdownReport(companyId);
 
     // Get company name for title
-    const company = await (await import('../config/database.js')).prisma.company.findUnique({
+    const company = await (
+        await import('../config/database.js')
+    ).prisma.company.findUnique({
         where: { id: companyId },
         select: { companyName: true },
     });
@@ -248,7 +250,9 @@ export async function savePdfReport(companyId: string, outputDir: string): Promi
     const pdfBuffer = await generatePdfReport(companyId);
 
     // Get company name for filename
-    const company = await (await import('../config/database.js')).prisma.company.findUnique({
+    const company = await (
+        await import('../config/database.js')
+    ).prisma.company.findUnique({
         where: { id: companyId },
         select: { companyName: true },
     });

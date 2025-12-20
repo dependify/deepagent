@@ -56,7 +56,9 @@ export default function AdminPage() {
             if (activeTab === 'dashboard') {
                 const [statsRes, pendingRes] = await Promise.all([
                     fetch('/api/admin/stats', { headers: { Authorization: `Bearer ${token}` } }),
-                    fetch('/api/admin/users/pending', { headers: { Authorization: `Bearer ${token}` } }),
+                    fetch('/api/admin/users/pending', {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }),
                 ]);
                 if (statsRes.ok) setStats(await statsRes.json());
                 if (pendingRes.ok) {
@@ -64,13 +66,17 @@ export default function AdminPage() {
                     setPendingUsers(data.users);
                 }
             } else if (activeTab === 'users') {
-                const res = await fetch('/api/admin/users', { headers: { Authorization: `Bearer ${token}` } });
+                const res = await fetch('/api/admin/users', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
                 if (res.ok) {
                     const data = await res.json();
                     setUsers(data.users);
                 }
             } else if (activeTab === 'prompts') {
-                const res = await fetch('/api/admin/prompts', { headers: { Authorization: `Bearer ${token}` } });
+                const res = await fetch('/api/admin/prompts', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
                 if (res.ok) {
                     const data = await res.json();
                     setPrompts(data.prompts);
@@ -118,10 +124,11 @@ export default function AdminPage() {
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as any)}
-                        className={`px-4 py-2 font-medium transition-colors ${activeTab === tab.id
+                        className={`px-4 py-2 font-medium transition-colors ${
+                            activeTab === tab.id
                                 ? 'text-primary-600 border-b-2 border-primary-600'
                                 : 'text-slate-600 hover:text-slate-900'
-                            }`}
+                        }`}
                     >
                         {tab.label}
                     </button>
@@ -129,9 +136,13 @@ export default function AdminPage() {
             </div>
 
             {actionMessage && (
-                <div className="mb-4 p-3 bg-success-50 text-success-700 rounded-lg">{actionMessage}</div>
+                <div className="mb-4 p-3 bg-success-50 text-success-700 rounded-lg">
+                    {actionMessage}
+                </div>
             )}
-            {error && <div className="mb-4 p-3 bg-danger-50 text-danger-600 rounded-lg">{error}</div>}
+            {error && (
+                <div className="mb-4 p-3 bg-danger-50 text-danger-600 rounded-lg">{error}</div>
+            )}
 
             {loading ? (
                 <div className="text-center py-8">Loading...</div>
@@ -143,19 +154,27 @@ export default function AdminPage() {
                             {/* Stats Grid */}
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div className="card">
-                                    <div className="text-3xl font-bold text-primary-600">{stats.users.total}</div>
+                                    <div className="text-3xl font-bold text-primary-600">
+                                        {stats.users.total}
+                                    </div>
                                     <div className="text-slate-600">Total Users</div>
                                 </div>
                                 <div className="card">
-                                    <div className="text-3xl font-bold text-warning-600">{stats.users.pending}</div>
+                                    <div className="text-3xl font-bold text-warning-600">
+                                        {stats.users.pending}
+                                    </div>
                                     <div className="text-slate-600">Pending Approval</div>
                                 </div>
                                 <div className="card">
-                                    <div className="text-3xl font-bold text-primary-600">{stats.companies}</div>
+                                    <div className="text-3xl font-bold text-primary-600">
+                                        {stats.companies}
+                                    </div>
                                     <div className="text-slate-600">Companies</div>
                                 </div>
                                 <div className="card">
-                                    <div className="text-3xl font-bold text-primary-600">{stats.reports}</div>
+                                    <div className="text-3xl font-bold text-primary-600">
+                                        {stats.reports}
+                                    </div>
                                     <div className="text-slate-600">Reports</div>
                                 </div>
                             </div>
@@ -163,23 +182,36 @@ export default function AdminPage() {
                             {/* Pending Approvals */}
                             {pendingUsers.length > 0 && (
                                 <div className="card">
-                                    <h3 className="font-semibold text-lg mb-4">⏳ Pending Approvals</h3>
+                                    <h3 className="font-semibold text-lg mb-4">
+                                        ⏳ Pending Approvals
+                                    </h3>
                                     <div className="space-y-3">
                                         {pendingUsers.map((user) => (
-                                            <div key={user.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                            <div
+                                                key={user.id}
+                                                className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
+                                            >
                                                 <div>
-                                                    <div className="font-medium">{user.name || user.email}</div>
-                                                    <div className="text-sm text-slate-500">{user.email}</div>
+                                                    <div className="font-medium">
+                                                        {user.name || user.email}
+                                                    </div>
+                                                    <div className="text-sm text-slate-500">
+                                                        {user.email}
+                                                    </div>
                                                 </div>
                                                 <div className="flex gap-2">
                                                     <button
-                                                        onClick={() => handleUserAction(user.id, 'approve')}
+                                                        onClick={() =>
+                                                            handleUserAction(user.id, 'approve')
+                                                        }
                                                         className="px-3 py-1 bg-success-500 text-white rounded hover:bg-success-600"
                                                     >
                                                         Approve
                                                     </button>
                                                     <button
-                                                        onClick={() => handleUserAction(user.id, 'reject')}
+                                                        onClick={() =>
+                                                            handleUserAction(user.id, 'reject')
+                                                        }
                                                         className="px-3 py-1 bg-danger-500 text-white rounded hover:bg-danger-600"
                                                     >
                                                         Reject
@@ -210,19 +242,30 @@ export default function AdminPage() {
                                     {users.map((user) => (
                                         <tr key={user.id} className="border-t">
                                             <td className="p-3">
-                                                <div className="font-medium">{user.name || 'No name'}</div>
-                                                <div className="text-sm text-slate-500">{user.email}</div>
+                                                <div className="font-medium">
+                                                    {user.name || 'No name'}
+                                                </div>
+                                                <div className="text-sm text-slate-500">
+                                                    {user.email}
+                                                </div>
                                             </td>
                                             <td className="p-3">
-                                                <span className={`badge ${user.role === 'ADMIN' ? 'badge-primary' : ''}`}>
+                                                <span
+                                                    className={`badge ${user.role === 'ADMIN' ? 'badge-primary' : ''}`}
+                                                >
                                                     {user.role}
                                                 </span>
                                             </td>
                                             <td className="p-3">
-                                                <span className={`badge ${user.accountStatus === 'APPROVED' ? 'badge-success' :
-                                                        user.accountStatus === 'PENDING' ? 'badge-warning' :
-                                                            'badge-danger'
-                                                    }`}>
+                                                <span
+                                                    className={`badge ${
+                                                        user.accountStatus === 'APPROVED'
+                                                            ? 'badge-success'
+                                                            : user.accountStatus === 'PENDING'
+                                                              ? 'badge-warning'
+                                                              : 'badge-danger'
+                                                    }`}
+                                                >
                                                     {user.accountStatus}
                                                 </span>
                                             </td>
@@ -230,7 +273,9 @@ export default function AdminPage() {
                                             <td className="p-3">
                                                 {user.accountStatus === 'PENDING' && (
                                                     <button
-                                                        onClick={() => handleUserAction(user.id, 'approve')}
+                                                        onClick={() =>
+                                                            handleUserAction(user.id, 'approve')
+                                                        }
                                                         className="text-success-600 hover:text-success-700 mr-2"
                                                     >
                                                         Approve
@@ -238,7 +283,9 @@ export default function AdminPage() {
                                                 )}
                                                 {user.accountStatus === 'APPROVED' && (
                                                     <button
-                                                        onClick={() => handleUserAction(user.id, 'suspend')}
+                                                        onClick={() =>
+                                                            handleUserAction(user.id, 'suspend')
+                                                        }
                                                         className="text-danger-600 hover:text-danger-700"
                                                     >
                                                         Suspend
@@ -260,14 +307,20 @@ export default function AdminPage() {
                                     <div className="flex justify-between items-start mb-2">
                                         <div>
                                             <h3 className="font-semibold">{prompt.displayName}</h3>
-                                            <span className="text-sm text-slate-500">{prompt.category}</span>
+                                            <span className="text-sm text-slate-500">
+                                                {prompt.category}
+                                            </span>
                                         </div>
-                                        <span className={`badge ${prompt.isActive ? 'badge-success' : 'badge-secondary'}`}>
+                                        <span
+                                            className={`badge ${prompt.isActive ? 'badge-success' : 'badge-secondary'}`}
+                                        >
                                             {prompt.isActive ? 'Active' : 'Inactive'}
                                         </span>
                                     </div>
                                     {prompt.description && (
-                                        <p className="text-sm text-slate-600 mb-2">{prompt.description}</p>
+                                        <p className="text-sm text-slate-600 mb-2">
+                                            {prompt.description}
+                                        </p>
                                     )}
                                     <details className="mt-2">
                                         <summary className="cursor-pointer text-primary-600 hover:text-primary-700">

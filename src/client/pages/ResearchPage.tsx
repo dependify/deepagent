@@ -59,9 +59,7 @@ export default function ResearchPage() {
         <div className="animate-fade-in">
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-slate-900">Research Queue</h1>
-                <p className="text-slate-600 mt-1">
-                    Monitor your active research jobs
-                </p>
+                <p className="text-slate-600 mt-1">Monitor your active research jobs</p>
             </div>
 
             {isLoading ? (
@@ -87,7 +85,11 @@ export default function ResearchPage() {
                                     </p>
                                 </div>
                                 <div className="text-2xl">
-                                    {job.status === 'RUNNING' ? '🔄' : job.status === 'COMPLETED' ? '✅' : '⏳'}
+                                    {job.status === 'RUNNING'
+                                        ? '🔄'
+                                        : job.status === 'COMPLETED'
+                                          ? '✅'
+                                          : '⏳'}
                                 </div>
                             </div>
 

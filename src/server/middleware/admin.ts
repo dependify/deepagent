@@ -1,6 +1,6 @@
 /**
  * Admin Middleware
- * 
+ *
  * Checks if the authenticated user has admin role.
  */
 
@@ -10,7 +10,7 @@ import { logger } from '../config/logger.js';
 
 export async function adminMiddleware(req: Request, res: Response, next: NextFunction) {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
 
         if (!userId) {
             return res.status(401).json({ error: 'Not authenticated' });
@@ -38,12 +38,12 @@ export async function adminMiddleware(req: Request, res: Response, next: NextFun
 
 /**
  * Approved user middleware
- * 
+ *
  * Checks if the user's account has been approved.
  */
 export async function approvedMiddleware(req: Request, res: Response, next: NextFunction) {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
 
         if (!userId) {
             return res.status(401).json({ error: 'Not authenticated' });

@@ -1,6 +1,6 @@
 /**
  * Admin Routes
- * 
+ *
  * User management, prompts, logs, and system administration.
  */
 
@@ -10,6 +10,7 @@ import { prisma } from '../config/database.js';
 import { logger } from '../config/logger.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { adminMiddleware } from '../middleware/admin.js';
+import { Request, Response, NextFunction } from 'express';
 
 const router = Router();
 
@@ -58,7 +59,12 @@ router.get('/users', async (req, res) => {
 
         res.json({
             users,
-            pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
+            pagination: {
+                page: pageNum,
+                limit: limitNum,
+                total,
+                totalPages: Math.ceil(total / limitNum),
+            },
         });
     } catch (error) {
         logger.error({ error }, 'Failed to list users');
@@ -172,7 +178,7 @@ router.put('/users/:id/role', async (req, res) => {
 router.delete('/users/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const adminId = (req as any).userId;
+        const adminId = req.userId;
 
         // Can't delete yourself
         if (id === adminId) {
