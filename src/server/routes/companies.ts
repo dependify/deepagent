@@ -9,7 +9,7 @@ const router = Router();
 // GET /api/companies - List all companies for user
 router.get('/', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const { page = '1', limit = '20', status, search } = req.query;
 
         const pageNum = parseInt(page as string, 10);
@@ -69,7 +69,7 @@ router.get('/', authMiddleware, async (req, res) => {
 // GET /api/companies/:id - Get single company with details
 router.get('/:id', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const { id } = req.params;
 
         const company = await prisma.company.findFirst({
@@ -99,7 +99,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // PUT /api/companies/:id - Update company
 router.put('/:id', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const { id } = req.params;
 
         const updateSchema = z.object({
@@ -135,7 +135,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
 // DELETE /api/companies/:id - Delete company
 router.delete('/:id', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const { id } = req.params;
 
         const result = await prisma.company.deleteMany({
@@ -156,7 +156,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 // POST /api/companies/bulk-delete - Delete multiple companies
 router.post('/bulk-delete', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const { ids } = z.object({ ids: z.array(z.string()) }).parse(req.body);
 
         const result = await prisma.company.deleteMany({
@@ -176,7 +176,7 @@ router.post('/bulk-delete', authMiddleware, async (req, res) => {
 // GET /api/companies/stats - Get company statistics
 router.get('/stats/summary', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
 
         const [total, pending, researching, completed, failed] = await Promise.all([
             prisma.company.count({ where: { userId } }),

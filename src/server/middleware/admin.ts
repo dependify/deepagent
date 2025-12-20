@@ -10,7 +10,7 @@ import { logger } from '../config/logger.js';
 
 export async function adminMiddleware(req: Request, res: Response, next: NextFunction) {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
 
         if (!userId) {
             return res.status(401).json({ error: 'Not authenticated' });
@@ -43,7 +43,7 @@ export async function adminMiddleware(req: Request, res: Response, next: NextFun
  */
 export async function approvedMiddleware(req: Request, res: Response, next: NextFunction) {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
 
         if (!userId) {
             return res.status(401).json({ error: 'Not authenticated' });

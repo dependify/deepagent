@@ -172,7 +172,7 @@ router.put('/users/:id/role', async (req, res) => {
 router.delete('/users/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const adminId = (req as any).userId;
+        const adminId = req.userId;
 
         // Can't delete yourself
         if (id === adminId) {

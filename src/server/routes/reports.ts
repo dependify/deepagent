@@ -10,7 +10,7 @@ const router = Router();
 // GET /api/reports - List all reports for user
 router.get('/', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const { page = '1', limit = '20' } = req.query;
 
         const pageNum = parseInt(page as string, 10);
@@ -50,7 +50,7 @@ router.get('/', authMiddleware, async (req, res) => {
 // GET /api/reports/:id - Get single report
 router.get('/:id', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const { id } = req.params;
 
         const report = await prisma.report.findFirst({
@@ -74,7 +74,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // GET /api/reports/:id/download/md - Download markdown report
 router.get('/:id/download/md', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const { id } = req.params;
 
         const report = await prisma.report.findFirst({
@@ -104,7 +104,7 @@ router.get('/:id/download/md', authMiddleware, async (req, res) => {
 // GET /api/reports/:id/download/pdf - Download PDF report
 router.get('/:id/download/pdf', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const { id } = req.params;
 
         const report = await prisma.report.findFirst({
@@ -137,7 +137,7 @@ router.get('/:id/download/pdf', authMiddleware, async (req, res) => {
 // POST /api/reports/generate/:companyId - Generate report for company
 router.post('/generate/:companyId', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const { companyId } = req.params;
 
         // Get company with research results
@@ -190,6 +190,9 @@ router.post('/generate/:companyId', authMiddleware, async (req, res) => {
             });
         } else {
             // Create new
+            if (!userId) {
+                return res.status(401).json({ error: 'User not authenticated' });
+            }
             report = await prisma.report.create({
                 data: {
                     companyId,
@@ -216,7 +219,7 @@ router.post('/generate/:companyId', authMiddleware, async (req, res) => {
 // POST /api/reports/generate-pdf/:companyId - Generate PDF directly
 router.post('/generate-pdf/:companyId', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const { companyId } = req.params;
 
         // Verify ownership
@@ -250,7 +253,7 @@ router.post('/generate-pdf/:companyId', authMiddleware, async (req, res) => {
 // DELETE /api/reports/:id - Delete report
 router.delete('/:id', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const { id } = req.params;
 
         const result = await prisma.report.deleteMany({

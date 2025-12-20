@@ -42,7 +42,7 @@ router.post('/csv', authMiddleware, upload.single('file'), async (req, res) => {
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
-        const userId = (req as any).userId;
+        const userId = req.userId;
         const csvContent = req.file.buffer.toString('utf-8');
 
         // Parse CSV
